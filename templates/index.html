@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PPT Summarizer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background: linear-gradient(to right, #e0c3fc, #8ec5fc);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+      margin: 30px 0;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+      animation: fadeInDown 1s ease-out;
+    }
+
+    .btn-custom {
+      background-color: #6f42c1;
+      color: #fff;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-custom:hover {
+      background-color: #5a34a2;
+      transform: scale(1.05);
+    }
+
+    .form-label {
+      color: #6f42c1;
+      font-weight: bold;
+    }
+
+    .content-section {
+      display: flex;
+      gap: 20px;
+      height: 75vh;
+    }
+
+    .left-panel,
+    .right-panel {
+      flex: 1;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      overflow-y: auto;
+      animation: fadeInUp 1s ease-in-out;
+    }
+
+    .left-panel::-webkit-scrollbar,
+    .right-panel::-webkit-scrollbar,
+    .chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .left-panel::-webkit-scrollbar-thumb,
+    .right-panel::-webkit-scrollbar-thumb,
+    .chat-box::-webkit-scrollbar-thumb {
+      background-color: #6f42c1;
+      border-radius: 3px;
+    }
+
+    .summary-title,
+    .question-title {
+      font-size: 1.6rem;
+      color: #6f42c1;
+      margin-bottom: 15px;
+    }
+
+    .text-summary {
+      font-size: 1.05rem;
+      color: #333;
+      white-space: pre-wrap;
+    }
+
+    .chat-box {
+      margin-top: 20px;
+      max-height: 350px;
+      overflow-y: auto;
+      background-color: #f8f8f8;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .user {
+      background-color: #e0d4fc;
+    }
+
+    .bot {
+      background-color: #d0f0d5;
+    }
+
+    @media (max-width: 768px) {
+      .content-section {
+        flex-direction: column;
+        height: auto;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="animate__animated animate__fadeInDown">📊 PPT Summary Generator</h1>
+
+    <!-- Upload form -->
+    <form method="POST" enctype="multipart/form-data" class="bg-white p-4 shadow-lg rounded mb-4 animate__animated animate__fadeIn">
+      <div class="mb-3">
+        <label for="ppt" class="form-label">Upload a PPTX File</label>
+        <input type="file" class="form-control" id="ppt" name="ppt" accept=".pptx" required>
+      </div>
+      <button type="submit" class="btn btn-custom">Generate Summary</button>
+    </form>
+
+    {% if summary %}
+    <div class="content-section">
+      <!-- Summary Section -->
+     <!-- Summary Section -->
+<div class="left-panel">
+  <h3 class="summary-title">📄 PPT Summary</h3>
+  <div class="text-summary"><p>{{ summary }}</p></div>
+</div>
+
+
+      <!-- Question/Answer Section -->
+      <div class="right-panel">
+        <h3 class="question-title">💬 Ask a Question</h3>
+        <form id="question-form">
+          <div class="mb-3">
+            <label for="question" class="form-label">Enter your question about the PPT</label>
+            <input type="text" class="form-control" id="question" name="question" placeholder="Ask a question" required>
+          </div>
+          <button type="submit" class="btn btn-custom">Get Answer</button>
+        </form>
+
+        <!-- Chat History -->
+        <div class="chat-box" id="chat-box">
+          {% for message in conversation %}
+          <div class="message user"><strong>You:</strong> {{ message['question'] }}</div>
+          <div class="message bot"><strong>Bot:</strong> {{ message['answer'] }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#question-form').submit(function (e) {
+        e.preventDefault();
+        const question = $('#question').val();
+        if (question.trim() === "") return;
+  
+        $('#chat-box').append(`<div class="message user"><strong>You:</strong> ${question}</div>`);
+        $('#question').val('');
+  
+        $.ajax({
+          url: '/ask',
+          type: 'POST',
+          data: { question: question },
+          success: function (response) {
+            if (response.answer) {
+              $('#chat-box').append(`<div class="message bot"><strong>Bot:</strong> ${response.answer}</div>`);
+              $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+            }
+          },
+          error: function () {
+            $('#chat-box').append(`<div class="message bot"><strong>Bot:</strong> Sorry, something went wrong.</div>`);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
