@@ -33,3 +33,6 @@ An intelligent tool that extracts summaries from PowerPoint presentations using 
 ## 📬 Contact
 
 Feel free to reach out via email: **shubhamgajera200@gmail.com**
+
+
+<!--  SHUBHAM GAJERA -->
