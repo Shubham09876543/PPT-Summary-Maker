@@ -66,7 +66,7 @@ def ask_question():
     ppt_text = session.get("ppt_text", "")
 
     if not question:
-        return jsonify({"error": "No question provided."})
+        return jsonify({"error": "No question Provided."})
 
     if ppt_text:
         # Step 1: Try answering from PPT context
